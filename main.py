@@ -2,8 +2,11 @@ import streamlit as st
 import pandas as pd
 from requests import get
 from bs4 import BeautifulSoup as bs
+import matplotlib.pyplot as plt
+import numpy as np
 
-table = pd.DataFrame({"Column 1":[1,2,3,4,5,6,7,8,9],"Column 2":[10,11,12,13,14,15,16,17,18]})
+donnees = pd.read_csv("datas/teldakarvente.csv",dtype={'marque': str, 'prix': str})
+donnees['prix'].fillna('N/A', inplace=True)
 
 st.markdown("""
 <style>
@@ -49,12 +52,12 @@ def scrap(id,nb_page):
     return df
 
 st.sidebar.subheader("Filtrer le scraping")
-nb_page = st.sidebar.slider("Choisissez le nombre de page a scraper" , min_value=0,max_value=100)
+nb_page = st.sidebar.slider("Choisissez le nombre de page a scraper" , min_value=1,max_value=111)
 print(nb_page)
 st.sidebar.markdown("---")
-res = st.sidebar.selectbox("Naviguez sur l'application",options=("Scrapper les données","Dashboard","Telecharger les données","Formulaire de contact"))
+res = st.sidebar.selectbox("Naviguez sur l'application",options=("Scrapper les données avec BS","Dashboard","Scrapper les données avec web Scraper","Formulaire de contact"))
 
-if res == "Scrapper les données":
+if res == "Scrapper les données avec BS":
     st.title("Dashboard de scrapping")
     st.markdown("Ces données sont scrapées sur le site [dakarvente](https://www.dakarvente.com)")
     st.text("Ci-dessous se trouve les données disponible pour le scraping")
@@ -62,7 +65,7 @@ if res == "Scrapper les données":
     # st.table(table)
     st.header("Voiture")
     
-    st.image("mustang.jpg")
+    st.image("images/mustang.jpg")
     click = st.button("Scrapper les données des voitures en location")
 
     if click:
@@ -77,7 +80,7 @@ if res == "Scrapper les données":
 
 
     st.header("Motos")
-    st.image("moto2.jpg")
+    st.image("images/moto2.jpg")
     click = st.button("Scrapper les données des motos")
 
     if click:
@@ -85,7 +88,7 @@ if res == "Scrapper les données":
         st.dataframe(sc)
 
     st.header("Telephone")
-    st.image("telep.jpg")
+    st.image("images/telep.jpg")
     click = st.button("Scrapper les données des telephones")
 
     if click:
@@ -94,4 +97,77 @@ if res == "Scrapper les données":
 
 elif res == "Formulaire de contact":
     st.markdown("""<iframe src="https://ee.kobotoolbox.org/i/cXvfevZE" width="800" height="600"></iframe>""",unsafe_allow_html=True)
+elif res == "Dashboard":
 
+    x = np.linspace(0, 2 * np.pi, 100)
+    y = np.sin(x)
+
+    st.title("Graphique Matplotlib avec Streamlit")
+
+    graph_type = st.selectbox("Choisissez le type de graphique", ["ligne", "Nuage de points","barre","histogramme"])
+        
+    fig, ax = plt.subplots()
+
+    if graph_type == "Nuage de points":
+        plt.scatter(donnees['marque'], donnees['prix'])
+        plt.xlabel("Nom de l'axe X")
+        plt.ylabel("Nom de l'axe Y")
+        plt.title('Nuage de points')
+        plt.show()
+    elif graph_type == "barre":
+        plt.bar(donnees['marque'], donnees['prix'])
+        plt.xlabel("Nom de l'axe X")
+        plt.ylabel("Nom de l'axe Y")
+        plt.title('Titre du graphique')
+        plt.show()
+    elif graph_type == "ligne":
+        plt.plot(donnees['marque'], donnees['prix'], marker='o')
+        plt.xlabel("Nom de l'axe X")
+        plt.ylabel("Nom de l'axe Y")
+        plt.title('Diagramme en lignes')
+        plt.show()
+    elif graph_type == "histogramme":
+        plt.hist(donnees['prix'], bins=10, edgecolor='black')
+        plt.xlabel("Nom de l'axe X")
+        plt.ylabel("Nom de l'axe Y")
+        plt.title('Histogramme')
+        plt.show()
+
+    st.pyplot(fig)
+elif res == "Scrapper les données avec web Scraper":
+    st.title("Scraping avec Web Scrapper")
+    st.markdown("Ces données sont scrapées sur le site [dakarvente](https://www.dakarvente.com)")
+    st.text("Ci-dessous se trouve les données disponible pour le scraping")
+    st.markdown("---")
+    # st.table(table)
+    st.header("Voiture")
+    
+    st.image("images/mustang.jpg")
+    click = st.button("Scrapper les données des voitures en location")
+
+    if click:
+        df = pd.read_csv("datas/autolocdakarvente.csv")
+        st.dataframe(df)
+
+    click = st.button("Scrapper les données des voitures en ventes")
+
+    if click:
+        df = pd.read_csv("datas/autodakarvente.csv")
+        st.dataframe(df)
+
+
+    st.header("Motos")
+    st.image("images/moto2.jpg")
+    click = st.button("Scrapper les données des motos")
+
+    if click:
+        df = pd.read_csv("datas/motodakarvente.csv")
+        st.dataframe(df)
+
+    st.header("Telephone")
+    st.image("images/telep.jpg")
+    click = st.button("Scrapper les données des telephones")
+
+    if click:
+        df = pd.read_csv("datas/teldakarvente.csv")
+        st.dataframe(df)
